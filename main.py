@@ -2,6 +2,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 from tempfile import gettempdir
+from collections import OrderedDict
 from clearml import Task, Dataset,Logger
 
 PROJECT_NAME = "bertopic"
@@ -55,6 +56,8 @@ from gensim.utils import simple_preprocess
 from gensim.models import CoherenceModel
 nltk.download('stopwords')
 nltk.download('punkt')
+
+from scipy_reduce import LevelClusterer 
 
 def add_stopwords(text_data):
     count_vectorizer = CountVectorizer(stop_words='english')
@@ -268,7 +271,13 @@ umap_model = umap.UMAP(n_neighbors=15,
               min_dist=0.0,
               metric='cosine')
 
-model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,embedding_model=sentence_model) #nr_topics="auto",
+hdb_model = hdbscan.HDBSCAN(min_cluster_size=10,
+                            metric='euclidean',
+                            cluster_selection_method='leaf',
+                            prediction_data=True)
+
+
+model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,hdbscan_model=hdb_model,embedding_model=sentence_model) #nr_topics="auto",
 topics, probabilities = model.fit_transform(docs, embeddings)
 
 cluster = topics
@@ -300,60 +309,65 @@ df['topic_name'] = cluster_names_column.values
 print(df.head(10))
 Logger.current_logger().report_table(title='results',series='pandas DataFrame',iteration=0,table_plot=df)
 
-df['Topic'] = df['topic_number']
-df = df.rename(columns={'cleaned_texts':'Document'})
-df = _auto_reduce_topics(model,df)
+level_clusterer = LevelClusterer(df,text_col='cleaned_texts',BERTopic_model=model)
 
-topics = {}
-topic_names = []
+level_clusterer.initial_rank()
 
-for key,value in model.get_topics().items():
-  topic_words = [i[0] for i in value]
 
-  unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM','SPACE','ADP','AUX','CONJ','CCONJ','DET','PRON','SCONJ']
-  doc = nlp(' '.join(topic_words))
-  words = [token.text for token in doc if token.pos_ not in unallowed_postags and token.lemma_!='-PRON-']
+# df['Topic'] = df['topic_number']
+# df = df.rename(columns={'cleaned_texts':'Document'})
+# df = _auto_reduce_topics(model,df)
+
+# topics = {}
+# topic_names = []
+
+# for key,value in model.get_topics().items():
+#   topic_words = [i[0] for i in value]
+
+#   unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM','SPACE','ADP','AUX','CONJ','CCONJ','DET','PRON','SCONJ']
+#   doc = nlp(' '.join(topic_words))
+#   words = [token.text for token in doc if token.pos_ not in unallowed_postags and token.lemma_!='-PRON-']
     
-  if len(words)>=5:
-    topics[str(key)] = " ".join(words[:5])
-  else:
-    topics[str(key)] = " ".join(topic_words[:5])
-  topic_names.append(" ".join(topic_words[:5]))
+#   if len(words)>=5:
+#     topics[str(key)] = " ".join(words[:5])
+#   else:
+#     topics[str(key)] = " ".join(topic_words[:5])
+#   topic_names.append(" ".join(topic_words[:5]))
 
-cluster_names_column = pd.Series(df['Topic'].values).apply(lambda x: topics[str(x)])
-df['topic_name_2'] = cluster_names_column.values
-df=df.sort_values(['topic_number'], ascending=True)
-print(df.head(10))
-Logger.current_logger().report_table(title='topic_name_2 results',series='pandas DataFrame',iteration=1,table_plot=df)
+# cluster_names_column = pd.Series(df['Topic'].values).apply(lambda x: topics[str(x)])
+# df['topic_name_2'] = cluster_names_column.values
+# df=df.sort_values(['topic_number'], ascending=True)
+# print(df.head(10))
+# Logger.current_logger().report_table(title='topic_name_2 results',series='pandas DataFrame',iteration=1,table_plot=df)
 
-rename_count = 2
-while len(model.get_topic_freq()) - 1 > 100:
-    df = df.rename(columns={'Topic':'topic_number_{}'.format(rename_count)})
-    df['Topic'] = df['topic_number_{}'.format(rename_count)]
-    df = df.rename(columns={'cleaned_texts':'Document'})
-    df = _auto_reduce_topics(model,df)
-    rename_count += 1
-    topics = {}
-    topic_names = []
+# rename_count = 2
+# while len(model.get_topic_freq()) - 1 > 100:
+#     df = df.rename(columns={'Topic':'topic_number_{}'.format(rename_count)})
+#     df['Topic'] = df['topic_number_{}'.format(rename_count)]
+#     df = df.rename(columns={'cleaned_texts':'Document'})
+#     df = _auto_reduce_topics(model,df)
+#     rename_count += 1
+#     topics = {}
+#     topic_names = []
 
-    for key,value in model.get_topics().items():
-        topic_words = [i[0] for i in value]
+#     for key,value in model.get_topics().items():
+#         topic_words = [i[0] for i in value]
 
-        unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM','SPACE','ADP','AUX','CONJ','CCONJ','DET','PRON','SCONJ']
-        doc = nlp(' '.join(topic_words))
-        words = [token.text for token in doc if token.pos_ not in unallowed_postags and token.lemma_!='-PRON-']
+#         unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM','SPACE','ADP','AUX','CONJ','CCONJ','DET','PRON','SCONJ']
+#         doc = nlp(' '.join(topic_words))
+#         words = [token.text for token in doc if token.pos_ not in unallowed_postags and token.lemma_!='-PRON-']
 
-        if len(words)>=5:
-            topics[str(key)] = " ".join(words[:5])
-        else:
-            topics[str(key)] = " ".join(topic_words[:5])
-        topic_names.append(" ".join(topic_words[:5]))
+#         if len(words)>=5:
+#             topics[str(key)] = " ".join(words[:5])
+#         else:
+#             topics[str(key)] = " ".join(topic_words[:5])
+#         topic_names.append(" ".join(topic_words[:5]))
 
-    cluster_names_column = pd.Series(df['Topic'].values).apply(lambda x: topics[str(x)])
-    df['topic_name_{}'.format(rename_count)] = cluster_names_column.values
-    df=df.sort_values(['topic_number'], ascending=True)
-    print(df.head(10))
-    Logger.current_logger().report_table(title='topic_name_{} results'.format(rename_count),series='pandas DataFrame',iteration=rename_count,table_plot=df)
+#     cluster_names_column = pd.Series(df['Topic'].values).apply(lambda x: topics[str(x)])
+#     df['topic_name_{}'.format(rename_count)] = cluster_names_column.values
+#     df=df.sort_values(['topic_number'], ascending=True)
+#     print(df.head(10))
+#     Logger.current_logger().report_table(title='topic_name_{} results'.format(rename_count),series='pandas DataFrame',iteration=rename_count,table_plot=df)
 
 
 # df.to_csv('multi_reduce_df.csv',index=False)

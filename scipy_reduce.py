@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pandas as pd
 import spacy
 
@@ -146,6 +148,24 @@ class LevelClusterer:
         else:
             new_topics_words,new_topics_embeddings = self.new_topics_embeddings_and_words(self,combined_topics,topics_words)
             self.embeddings = list(new_topics_embeddings.values())
+
+        keys = list(new_topics_embeddings.keys())
+        keys.sort()
+        ordered_embeddings = dict()
+
+        for key in keys:
+            ordered_embeddings[key] = new_topics_embeddings[key]
+
+        new_topics_embeddings = ordered_embeddings
+
+        keys = list(new_topics_words.keys())
+        keys.sort()
+        ordered_words = dict()
+
+        for key in keys:
+            ordered_words[key] = new_topics_words[key]
+
+        new_topics_words = ordered_words
 
         embedding_list=list(new_topics_embeddings.values())
         self.BERTopic_model.topic_embeddings = embedding_list
