@@ -271,13 +271,14 @@ umap_model = umap.UMAP(n_neighbors=15,
               min_dist=0.0,
               metric='cosine')
 
-hdb_model = hdbscan.HDBSCAN(min_cluster_size=10,
-                            metric='euclidean',
-                            cluster_selection_method='leaf',
-                            prediction_data=True)
+# hdb_model = hdbscan.HDBSCAN(min_cluster_size=10,
+#                             metric='euclidean',
+#                             cluster_selection_method='leaf',
+#                             prediction_data=True)
 
 
-model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,hdbscan_model=hdb_model,embedding_model=sentence_model) #nr_topics="auto",
+# model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,hdbscan_model=hdb_model,embedding_model=sentence_model) #nr_topics="auto",
+model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,embedding_model=sentence_model) 
 topics, probabilities = model.fit_transform(docs, embeddings)
 
 cluster = topics
