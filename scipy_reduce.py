@@ -184,7 +184,6 @@ class LevelClusterer:
         if self.BERTopic_model is not None:
             self.p = len(self.BERTopic_model.topic_embeddings)
         else:
-            global p
             self.p = self.embeddings.shape[0]
 
         fig = self.plot_dendrogram(level,new_rank,topics)
