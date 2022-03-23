@@ -1,4 +1,6 @@
 from collections import OrderedDict
+import os
+from tempfile import gettempdir
 
 import pandas as pd
 import spacy
@@ -188,15 +190,15 @@ class LevelClusterer:
             p = self.embeddings.shape[0]
 
         fig = self.plot_dendrogram(level,new_rank,topics)
-        fig.write_image("dendrogram_level_{}.png".format(str(level+1)))
+        fig.write_image(os.path.join(gettempdir(), "dendrogram_level_{}.png".format(str(level+1))))
 
-        return self.df.copy(deep=True)
+        return fig, self.df.copy(deep=True)
 
     def recursive_leveling(self):
         # TODO : recursive leveling
         for level in range(1,self.levels):
-            self.cut_at_level(level)
-        return self.df.copy(deep=True)
+            fig,df = self.cut_at_level(level)
+        return fig, self.df.copy(deep=True)
 
     def get_topics_words(self):
         nlp = spacy.load("en_core_web_sm")

@@ -313,6 +313,10 @@ Logger.current_logger().report_table(title='results',series='pandas DataFrame',i
 level_clusterer = LevelClusterer(df,text_col='cleaned_texts',BERTopic_model=model)
 
 level_clusterer.initial_rank()
+distance_matrix = level_clusterer.calculate_distance_matrix()
+cutree = level_clusterer.calculate_cutree()
+fig,results_df = level_clusterer.recursive_leveling()
+Logger.current_logger().report_table(title='leveling results',series='pandas DataFrame',iteration=0,table_plot=results_df)
 
 
 # df['Topic'] = df['topic_number']
@@ -372,11 +376,14 @@ level_clusterer.initial_rank()
 
 
 # df.to_csv('multi_reduce_df.csv',index=False)
-df.to_csv(os.path.join(gettempdir(), 'multi_reduce_df.csv'),index=False)
+results_df.to_csv(os.path.join(gettempdir(), 'multi_reduce_df.csv'),index=False)
 
-dataset = Dataset.create('datasets/bertopic', 'c4 results')
+dataset = Dataset.create('datasets/bertopic', '300 results')
 
-dataset.add_files(os.path.join(gettempdir(), 'multi_reduce_df.csv'))
+files = [f for f in listdir(gettempdir()) if isfile(join(gettempdir(), f)) and (f.endswith('.csv') or f.endswith('.png'))]
+
+for file in files:
+    dataset.add_files(os.path.join(gettempdir(), file))
 
 dataset.upload(output_url='s3://experiment-logging/multimodal')
 dataset.finalize()
