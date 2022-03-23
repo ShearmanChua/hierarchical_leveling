@@ -14,10 +14,8 @@ import numpy as np
 
 from sentence_transformers import SentenceTransformer
 
-p = 0
-
 class LevelClusterer:
-    p=0
+    
     def __init__(self,
                  dataframe,
                  text_col='cleaned_texts',
@@ -184,11 +182,10 @@ class LevelClusterer:
         print(self.df.head(10))
 
         if self.BERTopic_model is not None:
-            global p
-            p = len(self.BERTopic_model.topic_embeddings)
+            self.p = len(self.BERTopic_model.topic_embeddings)
         else:
             global p
-            p = self.embeddings.shape[0]
+            self.p = self.embeddings.shape[0]
 
         fig = self.plot_dendrogram(level,new_rank,topics)
         fig.write_image(os.path.join(gettempdir(), "dendrogram_level_{}.png".format(str(level+1))))
@@ -304,6 +301,8 @@ class LevelClusterer:
         return topics
 
     def plot_dendrogram(self,level,new_rank,topics):
+
+        p = self.p
 
         from scipy.cluster.hierarchy import linkage
         import plotly.figure_factory as ff
