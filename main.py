@@ -312,7 +312,7 @@ Logger.current_logger().report_table(title='results',series='pandas DataFrame',i
 
 level_clusterer = LevelClusterer(df,text_col='cleaned_texts',BERTopic_model=model)
 
-level_clusterer.initial_rank()
+level_clusterer.initial_ranking()
 distance_matrix = level_clusterer.calculate_distance_matrix()
 cutree = level_clusterer.calculate_cutree()
 fig,results_df = level_clusterer.recursive_leveling()

@@ -36,7 +36,7 @@ class LevelClusterer:
         self.p = 0
 
 
-    def initial_rank(self):
+    def initial_ranking(self):
         axis = "yaxis"
         if self.BERTopic_model is not None:
             fig = self.BERTopic_model.visualize_hierarchy()
@@ -174,7 +174,7 @@ class LevelClusterer:
 
         new_model_topics = self.new_model_topic_words(new_topics_words)
 
-        topics = self.topic_names_dict(new_model_topics,num_words=5)
+        topics = self.topic_names_dict(new_model_topics,num_words=10)
 
         cluster_names_column = pd.Series(self.df['Topic'].values).apply(lambda x: topics[str(x)])
         self.df['topic_name_{}'.format(str(level+1))] = cluster_names_column.values
