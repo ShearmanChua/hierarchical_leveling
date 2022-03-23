@@ -121,7 +121,7 @@ class LevelClusterer:
         # Map similar topics
         mapped_topics = {unique_topics[index]: prediction
                         for index, prediction in enumerate(predictions)
-                        if prediction != -1 and unique_topics[index] != -1}
+                        if prediction != -1 } #and unique_topics[index] != -1}
                         
         self.df['Topic'] = self.df.topic_number_1.map(mapped_topics).fillna(self.df.Topic).astype(int)
         mapped_topics = {from_topic: to_topic for from_topic, to_topic in zip(topics, self.df.Topic.tolist())}
@@ -226,7 +226,7 @@ class LevelClusterer:
                 embeddings = []
                 for i in value:
                     words.extend(topics_words[i])
-                    embeddings.append(self.BERTopic_model.topic_embeddings[i+1])
+                    embeddings.append(self.BERTopic_model.topic_embeddings[i])
 
                 new_topics_words[key] = words
                 new_topics_embeddings[key] = np.mean(embeddings, axis=0)
@@ -260,7 +260,7 @@ class LevelClusterer:
                 topic_words = []
                 for word in words:
                     embeddings = sentence_model.encode(word)
-                    sim = cosine_similarity(self.BERTopic_model.topic_embeddings[key+1].reshape(1, -1),embeddings.reshape(1, -1))
+                    sim = cosine_similarity(self.BERTopic_model.topic_embeddings[key].reshape(1, -1),embeddings.reshape(1, -1))
                     topic_words.append((word,sim[0][0]))
 
                 topic_words.sort(key = lambda x: x[1], reverse=True) 
