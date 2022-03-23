@@ -310,6 +310,8 @@ df['topic_name'] = cluster_names_column.values
 print(df.head(10))
 Logger.current_logger().report_table(title='results',series='pandas DataFrame',iteration=0,table_plot=df)
 
+df = df.rename(columns={'topic_number':'topic_number_1','topic_name':'topic_name_1'})
+
 level_clusterer = LevelClusterer(df,text_col='cleaned_texts',BERTopic_model=model)
 
 level_clusterer.initial_ranking()
