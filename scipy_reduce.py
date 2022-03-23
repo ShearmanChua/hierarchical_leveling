@@ -17,6 +17,7 @@ from sentence_transformers import SentenceTransformer
 p = 0
 
 class LevelClusterer:
+    p=0
     def __init__(self,
                  dataframe,
                  text_col='cleaned_texts',
