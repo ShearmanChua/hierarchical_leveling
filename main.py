@@ -232,7 +232,7 @@ dataset_obj = datasets_obj[::-1][0]
 
 folder = dataset_obj.get_local_copy()
 
-file = [file for file in dataset_obj.list_files() if file=='100k_c4_df.csv'][0]
+file = [file for file in dataset_obj.list_files() if file=='300_texts_split.csv'][0]
 
 file_path = folder + "/" + file
 df = pd.read_csv(file_path)  
