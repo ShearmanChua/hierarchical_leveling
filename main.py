@@ -220,7 +220,7 @@ def _auto_reduce_topics(model, documents: pd.DataFrame) -> pd.DataFrame:
 
 # get uploaded dataset from clearML
 dataset_dict = Dataset.list_datasets(
-    dataset_project='datasets/bertopic', partial_name='c4 100k data', only_completed=False
+    dataset_project='datasets/bertopic', partial_name='300 data', only_completed=False
 )
 
 datasets_obj = [

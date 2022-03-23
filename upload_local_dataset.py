@@ -75,15 +75,15 @@ def main():
     # dataset.finalize()
 
     # task = Task.init(project_name="fgET", task_name="upload data")
-    # dataset = Dataset.create(
-    #         dataset_project="datasets/multimodal", dataset_name="FIGER raw data"
-    #     )
-    # dataset.add_files("data/figer.json")
-    # dataset.upload(output_url='s3://experiment-logging/multimodal')
-    # dataset.finalize()
+    dataset = Dataset.create(
+            dataset_project="datasets/bertopic", dataset_name="300 data"
+        )
+    dataset.add_files("data/300_texts_split.csv")
+    dataset.upload(output_url='s3://experiment-logging/multimodal')
+    dataset.finalize()
 
-    parent_dataset = _get_last_child_dataset("datasets/multimodal", "fgET FIGER parquet data")
-    parent_dataset.finalize()
+    # parent_dataset = _get_last_child_dataset("datasets/multimodal", "fgET FIGER parquet data")
+    # parent_dataset.finalize()
 
 
 if __name__ == '__main__':
