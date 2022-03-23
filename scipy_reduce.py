@@ -23,6 +23,7 @@ class LevelClusterer:
                  embeddings = None
                 ):
         self.BERTopic_model = BERTopic_model
+        self.sentence_model = SentenceTransformer("all-mpnet-base-v2")
         self.embeddings = embeddings
         self.df = dataframe.rename(columns={text_col:'Document'})
         self.initial_rank = []
@@ -248,7 +249,7 @@ class LevelClusterer:
         self.BERTopic_model._update_topic_size(self.df)
 
     def new_model_topic_words(self,new_topics_words):
-        sentence_model = SentenceTransformer("all-mpnet-base-v2")
+        sentence_model = self.sentence_model
 
         new_model_topics = {}
 

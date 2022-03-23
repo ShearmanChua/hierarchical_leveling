@@ -242,7 +242,7 @@ nan_value = float("NaN")
 df.replace("", nan_value, inplace=True)
 df.dropna(axis=0, inplace=True)
 
-df['texts_cleaned'] = df['text'].apply(clean_urls).apply(clean_text).apply(decontracted)
+df['texts_cleaned'] = df['texts'].apply(clean_urls).apply(clean_text).apply(decontracted)
 texts = df['texts_cleaned']
 # lemmatize sentences and remove words corresponding to the listed Spacy POS tags in unallowed_postags
 texts = lemmatization_series(texts, unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM','SPACE','PROPN']) #,'INTJ','PROPN'
