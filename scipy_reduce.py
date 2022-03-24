@@ -105,7 +105,7 @@ class LevelClusterer:
         for count in height:
             if len(cuts) == 0:
                 cuts.append([i[count] for i in cutree])
-            elif [i[count] for i in cutree] != cuts[-1]:
+            elif [i[count] for i in cutree] != cuts[-1] and not all(element == 0 for element in [i[count] for i in cutree]):
                 cuts.append([i[count] for i in cutree])
 
         self.levels = len(cuts)

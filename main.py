@@ -269,7 +269,8 @@ embeddings = sentence_model.encode(docs)
 umap_model = umap.UMAP(n_neighbors=15,
               n_components=300,
               min_dist=0.0,
-              metric='cosine')
+              metric='cosine',
+              random_state=42)
 
 # hdb_model = hdbscan.HDBSCAN(min_cluster_size=10,
 #                             metric='euclidean',
@@ -309,6 +310,7 @@ cluster_names_column = pd.Series(df['topic_number'].values).apply(lambda x: topi
 df['topic_name'] = cluster_names_column.values
 print(df.head(10))
 Logger.current_logger().report_table(title='results',series='pandas DataFrame',iteration=0,table_plot=df)
+Logger.current_logger().report_plotly(title='level_0',series='Dendrogram',figure=model.visualize_hierarchy(),iteration=0)
 
 df = df.rename(columns={'topic_number':'topic_number_1','topic_name':'topic_name_1'})
 
@@ -318,6 +320,8 @@ level_clusterer.initial_ranking()
 distance_matrix = level_clusterer.calculate_distance_matrix()
 cutree = level_clusterer.calculate_cutree()
 print("Cutree for topics: ",cutree)
+mapping_df = pd.DataFrame(cutree,columns=[i for i in range(level_clusterer.levels)])
+Logger.current_logger().report_table(title='cutree levels',series='pandas DataFrame',iteration=0,table_plot=mapping_df)
 for level in range(1,level_clusterer.levels):
     fig,results_df = level_clusterer.cut_at_level(level)
     Logger.current_logger().report_table(title='leveling results',series='pandas DataFrame',iteration=0,table_plot=results_df)
@@ -381,6 +385,7 @@ for level in range(1,level_clusterer.levels):
 
 
 # df.to_csv('multi_reduce_df.csv',index=False)
+mapping_df.to_csv(os.path.join(gettempdir(), 'mappings_df.csv'),index=False)
 results_df.to_csv(os.path.join(gettempdir(), 'multi_reduce_df.csv'),index=False)
 
 dataset = Dataset.create('datasets/bertopic', '300 results')
