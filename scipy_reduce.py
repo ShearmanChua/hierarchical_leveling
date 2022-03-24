@@ -14,6 +14,15 @@ import numpy as np
 
 from sentence_transformers import SentenceTransformer
 
+def topic_words_lemmatization(text,nlp, unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM','SPACE']):
+    text = " ".join(text)
+    
+    doc = nlp(text)
+    words = [token.lemma_ for token in doc if token.pos_ not in unallowed_postags and token.lemma_!='-PRON-']
+    words = list(dict.fromkeys(words))
+    
+    return words
+
 class LevelClusterer:
     
     def __init__(self,
@@ -172,13 +181,13 @@ class LevelClusterer:
         embedding_list=list(new_topics_embeddings.values())
         self.BERTopic_model.topic_embeddings = embedding_list
 
-        new_model_topics = self.new_model_topic_words(new_topics_words)
+        new_model_topics = self.new_model_topic_words(new_topics_words,new_topics_embeddings)
 
         topics = self.topic_names_dict(new_model_topics,num_words=10)
 
         cluster_names_column = pd.Series(self.df['Topic'].values).apply(lambda x: topics[str(x)])
         self.df['topic_name_{}'.format(str(level+1))] = cluster_names_column.values
-        self.df=self.df.sort_values(['topic_number_1'], ascending=True)
+        self.df=self.df.sort_values(['Topic'], ascending=True)
         self.df = self.df.rename(columns={'Topic':'topic_number_{}'.format(str(level+1))})
         print(self.df.head(10))
 
@@ -193,7 +202,7 @@ class LevelClusterer:
         return fig, self.df.copy(deep=True)
 
     def recursive_leveling(self):
-        # TODO : recursive leveling
+        
         for level in range(1,self.levels):
             fig,df = self.cut_at_level(level)
         return fig, self.df.copy(deep=True)
@@ -217,27 +226,19 @@ class LevelClusterer:
     def new_topics_embeddings_and_words(self,combined_topics,topics_words):
         new_topics_words = {}
         new_topics_embeddings = {}
+        nlp = spacy.load('en_core_web_sm',disable=["tagger","parser"])
+            
+        for key,value in combined_topics.items():
+            words = []
+            new_topic_words = []
+            for i in value:
+                words.extend(topics_words[i])
+                new_topic_words.extend(topics_words[i][:5])
 
-        if self.BERTopic_model is not None:
-            for key,value in combined_topics.items():
-                words = []
-                embeddings = []
-                for i in value:
-                    words.extend(topics_words[i])
-                    embeddings.append(self.BERTopic_model.topic_embeddings[i])
-
-                new_topics_words[key] = words
-                new_topics_embeddings[key] = np.mean(embeddings, axis=0)
-        else:
-            for key,value in combined_topics.items():
-                words = []
-                embeddings = []
-                for i in value:
-                    words.extend(topics_words[i])
-                    embeddings.append(self.embeddings[i])
-
-                new_topics_words[key] = words
-                new_topics_embeddings[key] = np.mean(embeddings, axis=0)
+            words = topic_words_lemmatization(words,nlp, unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM','SPACE'])
+            new_topics_words[key] = words
+            topic_sentence = ' '.join(new_topic_words)
+            new_topics_embeddings[key] = self.sentence_model.encode(topic_sentence)
 
         return new_topics_words,new_topics_embeddings
 
@@ -248,34 +249,21 @@ class LevelClusterer:
         self.BERTopic_model._extract_topics(self.df)
         self.BERTopic_model._update_topic_size(self.df)
 
-    def new_model_topic_words(self,new_topics_words):
+    def new_model_topic_words(self,new_topics_words,new_topics_embeddings):
         sentence_model = self.sentence_model
 
         new_model_topics = {}
 
-        if self.BERTopic_model is not None:
-            for key,words in new_topics_words.items():
-                topic_words = []
-                for word in words:
-                    embeddings = sentence_model.encode(word)
-                    sim = cosine_similarity(self.BERTopic_model.topic_embeddings[key].reshape(1, -1),embeddings.reshape(1, -1))
-                    topic_words.append((word,sim[0][0]))
+        for key,words in new_topics_words.items():
+            topic_words = []
+            for word in words:
+                embeddings = sentence_model.encode(word)
+                sim = cosine_similarity(new_topics_embeddings[key].reshape(1, -1),embeddings.reshape(1, -1))
+                topic_words.append((word,sim[0][0]))
 
-                topic_words.sort(key = lambda x: x[1], reverse=True) 
-                topic_words = list(dict.fromkeys(topic_words))
-                new_model_topics[key]=topic_words
-            self.BERTopic_model.topics = new_model_topics
-        else:
-            for key,words in new_topics_words.items():
-                topic_words = []
-                for word in words:
-                    embeddings = sentence_model.encode(word)
-                    sim = cosine_similarity(self.BERTopic_model.topic_embeddings[key+1].reshape(1, -1),embeddings.reshape(1, -1))
-                    topic_words.append((word,sim[0][0]))
-
-                topic_words.sort(key = lambda x: x[1], reverse=True) 
-                topic_words = list(dict.fromkeys(topic_words))
-                new_model_topics[key]=topic_words
+            topic_words.sort(key = lambda x: x[1], reverse=True) 
+            topic_words = list(dict.fromkeys(topic_words))
+            new_model_topics[key]=topic_words
 
         return new_model_topics
 
@@ -450,9 +438,12 @@ class LevelClusterer:
                                         ticktext=new_labels))
             
             # Fix empty space on the bottom of the graph
-            y_max = max([trace['y'].max()+5 for trace in fig['data']])
-            y_min = min([trace['y'].min()-5 for trace in fig['data']])
-            fig.update_layout(yaxis=dict(range=[y_min, y_max]))
+            try:
+                y_max = max([trace['y'].max()+5 for trace in fig['data']])
+                y_min = min([trace['y'].min()-5 for trace in fig['data']])
+                fig.update_layout(yaxis=dict(range=[y_min, y_max]))
+            except:
+                print("Cannot fix empty space on the bottom of the graph")
 
         else:
             fig.update_layout(width=200+(15*len(topics)),

@@ -317,8 +317,10 @@ level_clusterer = LevelClusterer(df,text_col='cleaned_texts',BERTopic_model=mode
 level_clusterer.initial_ranking()
 distance_matrix = level_clusterer.calculate_distance_matrix()
 cutree = level_clusterer.calculate_cutree()
-fig,results_df = level_clusterer.recursive_leveling()
-Logger.current_logger().report_table(title='leveling results',series='pandas DataFrame',iteration=0,table_plot=results_df)
+print("Cutree for topics: ",cutree)
+for level in range(1,level_clusterer.levels):
+    fig,results_df = level_clusterer.cut_at_level(level)
+    Logger.current_logger().report_table(title='leveling results',series='pandas DataFrame',iteration=0,table_plot=results_df)
 
 
 # df['Topic'] = df['topic_number']
