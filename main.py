@@ -324,6 +324,7 @@ mapping_df = pd.DataFrame(cutree,columns=[i for i in range(level_clusterer.level
 Logger.current_logger().report_table(title='cutree levels',series='pandas DataFrame',iteration=0,table_plot=mapping_df)
 for level in range(1,level_clusterer.levels):
     fig,results_df = level_clusterer.cut_at_level(level)
+    fig.write_image(os.path.join(gettempdir(), "dendrogram_level_{}.png".format(str(level))))
     Logger.current_logger().report_table(title='leveling results',series='pandas DataFrame',iteration=0,table_plot=results_df)
     Logger.current_logger().report_plotly(title='level_{}'.format(level),series='Dendrogram',figure=fig,iteration=0)
 
