@@ -256,6 +256,7 @@ df.dropna(axis=0, inplace=True)
 df=df.drop(['texts_cleaned'], axis=1)
 df = df.drop_duplicates(subset='cleaned_texts', keep="first")
 print(df.head())
+print(df.info())
 
 docs = df['cleaned_texts'].tolist()
 
@@ -320,11 +321,11 @@ level_clusterer.initial_ranking()
 distance_matrix = level_clusterer.calculate_distance_matrix()
 cutree = level_clusterer.calculate_cutree()
 print("Cutree for topics: ",cutree)
-mapping_df = pd.DataFrame(cutree,columns=[i for i in range(level_clusterer.levels)])
+mapping_df = pd.DataFrame(cutree,columns=['level_{}'.format(str(i)) for i in range(level_clusterer.levels)])
 Logger.current_logger().report_table(title='cutree levels',series='pandas DataFrame',iteration=0,table_plot=mapping_df)
 for level in range(1,level_clusterer.levels):
     fig,results_df = level_clusterer.cut_at_level(level)
-    fig.write_image(os.path.join(gettempdir(), "dendrogram_level_{}.png".format(str(level))))
+    # fig.write_image(os.path.join(gettempdir(), "dendrogram_level_{}.png".format(str(level))))
     Logger.current_logger().report_table(title='leveling results',series='pandas DataFrame',iteration=0,table_plot=results_df)
     Logger.current_logger().report_plotly(title='level_{}'.format(level),series='Dendrogram',figure=fig,iteration=0)
 
@@ -389,7 +390,7 @@ for level in range(1,level_clusterer.levels):
 mapping_df.to_csv(os.path.join(gettempdir(), 'mappings_df.csv'),index=False)
 results_df.to_csv(os.path.join(gettempdir(), 'multi_reduce_df.csv'),index=False)
 
-dataset = Dataset.create('datasets/bertopic', '300 results with mappings')
+dataset = Dataset.create('300 results with mappings','datasets/bertopic')
 
 files = [f for f in listdir(gettempdir()) if isfile(join(gettempdir(), f)) and (f.endswith('.csv') or f.endswith('.png'))]
 
