@@ -235,7 +235,8 @@ folder = dataset_obj.get_local_copy()
 file = [file for file in dataset_obj.list_files() if file=='300_texts_split.csv'][0]
 
 file_path = folder + "/" + file
-df = pd.read_csv(file_path)  
+df = pd.read_csv(file_path) 
+df = df.drop(['SOURCE'], axis=1) 
 print(df.head())
 
 nan_value = float("NaN")
@@ -249,12 +250,13 @@ texts = lemmatization_series(texts, unallowed_postags=['X', 'SYM', 'PUNCT', 'NUM
 
 # df.insert(len(df.columns), 'cleaned_texts', clean_col)
 df.insert(len(df.columns), 'cleaned_texts', texts)
-nan_value = float("NaN")
-df.replace("", nan_value, inplace=True)
-df.dropna(axis=0, inplace=True)
+# nan_value = float("NaN")
+# df.replace("", nan_value, inplace=True)
+# df.dropna(axis=0, inplace=True)
+df.replace("", "Text not suitable for modeling after cleaning", inplace=True)
 
 df=df.drop(['texts_cleaned'], axis=1)
-df = df.drop_duplicates(subset='cleaned_texts', keep="first")
+# df = df.drop_duplicates(subset='cleaned_texts', keep="first")
 print(df.head())
 print(df.info())
 
@@ -273,14 +275,14 @@ umap_model = umap.UMAP(n_neighbors=15,
               metric='cosine',
               random_state=42)
 
-# hdb_model = hdbscan.HDBSCAN(min_cluster_size=10,
-#                             metric='euclidean',
-#                             cluster_selection_method='leaf',
-#                             prediction_data=True)
+hdb_model = hdbscan.HDBSCAN(min_cluster_size=10,
+                            metric='euclidean',
+                            cluster_selection_method='leaf',
+                            prediction_data=True)
 
 
-# model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,hdbscan_model=hdb_model,embedding_model=sentence_model) #nr_topics="auto",
-model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,embedding_model=sentence_model) 
+model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,hdbscan_model=hdb_model,embedding_model=sentence_model) #nr_topics="auto",
+# model = BERTopic(calculate_probabilities=True,verbose=True,umap_model=umap_model,embedding_model=sentence_model) 
 topics, probabilities = model.fit_transform(docs, embeddings)
 
 cluster = topics
