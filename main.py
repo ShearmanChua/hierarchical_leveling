@@ -392,7 +392,7 @@ for level in range(1,level_clusterer.levels):
 mapping_df.to_csv(os.path.join(gettempdir(), 'mappings_df.csv'),index=False)
 results_df.to_csv(os.path.join(gettempdir(), 'multi_reduce_df.csv'),index=False)
 
-dataset = Dataset.create('300 results with mappings','datasets/bertopic')
+dataset = Dataset.create('300 results with mappings 2','datasets/bertopic')
 
 files = [f for f in listdir(gettempdir()) if isfile(join(gettempdir(), f)) and (f.endswith('.csv') or f.endswith('.png'))]
 
