@@ -144,11 +144,11 @@ class LevelClusterer:
         self.initial_rank = new_rank
 
         if self.BERTopic_model is not None:
-            new_topics_words,new_topics_embeddings = self.new_topics_embeddings_and_words(self,combined_topics,topics_words)
+            new_topics_words,new_topics_embeddings = self.new_topics_embeddings_and_words(combined_topics,topics_words)
 
             self.update_BERTopic_model(mapped_topics)
         else:
-            new_topics_words,new_topics_embeddings = self.new_topics_embeddings_and_words(self,combined_topics,topics_words)
+            new_topics_words,new_topics_embeddings = self.new_topics_embeddings_and_words(combined_topics,topics_words)
             self.embeddings = list(new_topics_embeddings.values())
 
         keys = list(new_topics_embeddings.keys())
