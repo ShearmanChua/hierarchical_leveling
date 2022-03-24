@@ -23,6 +23,7 @@ Jinja2==3.0.3
 jmespath==0.10.0
 joblib==1.1.0
 jsonschema==4.4.0
+kaleido
 langcodes==3.3.0
 llvmlite==0.38.0
 MarkupSafe==2.1.0
