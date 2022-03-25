@@ -319,12 +319,14 @@ df = df.rename(columns={'topic_number':'topic_number_1','topic_name':'topic_name
 
 level_clusterer = LevelClusterer(df,text_col='cleaned_texts',BERTopic_model=model)
 
-level_clusterer.initial_ranking()
+level_clusterer.initial_ranking('level_{}'.format(str(i)))
 distance_matrix = level_clusterer.calculate_distance_matrix()
 cutree = level_clusterer.calculate_cutree()
 print("Cutree for topics: ",cutree)
 mapping_df = pd.DataFrame(cutree,columns=['level_{}'.format(str(i)) for i in range(level_clusterer.levels)])
+df=df.sort_values(['level_{}'.format(str(level_clusterer.levels-1))], ascending=True)
 Logger.current_logger().report_table(title='cutree levels',series='pandas DataFrame',iteration=0,table_plot=mapping_df)
+
 for level in range(1,level_clusterer.levels):
     fig,results_df = level_clusterer.cut_at_level(level)
     # fig.write_image(os.path.join(gettempdir(), "dendrogram_level_{}.png".format(str(level))))
