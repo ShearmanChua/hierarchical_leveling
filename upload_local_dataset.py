@@ -45,7 +45,7 @@ def main():
     # dataset.finalize()
 
     task = Task.init(project_name="ontonotes", task_name="delete dataset")
-    Dataset.delete(dataset_id='f138abfb8a7c49bd9981df559ba7a60e')
+    Dataset.delete(dataset_id='b18bbfada25a4b88b512838c5303835e')
 
     # raw unzipped ontonotes v5.0 files
     # task = Task.init(project_name="ontonotes", task_name="upload raw data")
