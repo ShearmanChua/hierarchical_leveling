@@ -319,7 +319,7 @@ df = df.rename(columns={'topic_number':'topic_number_1','topic_name':'topic_name
 
 level_clusterer = LevelClusterer(df,text_col='cleaned_texts',BERTopic_model=model)
 
-level_clusterer.initial_ranking('level_{}'.format(str(i)))
+level_clusterer.initial_ranking()
 distance_matrix = level_clusterer.calculate_distance_matrix()
 cutree = level_clusterer.calculate_cutree()
 print("Cutree for topics: ",cutree)
