@@ -324,7 +324,7 @@ distance_matrix = level_clusterer.calculate_distance_matrix()
 cutree = level_clusterer.calculate_cutree()
 print("Cutree for topics: ",cutree)
 mapping_df = pd.DataFrame(cutree,columns=['level_{}'.format(str(i)) for i in range(level_clusterer.levels)])
-df=df.sort_values(['level_{}'.format(str(cutree.shape[1]-1))], ascending=True)
+df=df.sort_values(['level_{}'.format(str(cutree.shape[1]-2))], ascending=True)
 Logger.current_logger().report_table(title='cutree levels',series='pandas DataFrame',iteration=0,table_plot=mapping_df)
 
 for level in range(1,level_clusterer.levels):
