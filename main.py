@@ -110,7 +110,7 @@ def remove_stopwords(row: str, additional_stop_words=[]):
 def lemmatization_series(texts, unallowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
     
     """https://spacy.io/api/annotation"""
-    nlp = spacy.load('en_core_web_sm',disable=["tagger","parser"])
+    nlp = spacy.load('en_core_web_sm',disable=["parser","ner","textcat"])
     
     texts = texts.tolist()
     lst = []
