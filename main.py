@@ -326,7 +326,7 @@ print("Cutree for topics: ",cutree)
 print("Cutree shape: ",cutree.shape)
 mapping_df = pd.DataFrame(cutree,columns=['level_{}'.format(str(i)) for i in range(cutree.shape[1])])
 print(mapping_df.head())
-df=df.sort_values(['level_{}'.format(str(cutree.shape[1]-1))], ascending=True)
+mapping_df=mapping_df.sort_values(['level_{}'.format(str(cutree.shape[1]-1))], ascending=True)
 Logger.current_logger().report_table(title='cutree levels',series='pandas DataFrame',iteration=0,table_plot=mapping_df)
 
 for level in range(1,level_clusterer.levels):
